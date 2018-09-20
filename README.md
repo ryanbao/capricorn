@@ -1,2 +1,0 @@
-# capricorn
-personal blog
