@@ -16,25 +16,20 @@ layout: default
     <section class="contact">
       <h3 class="contact-title">Contact me</h3>
       <ul>
-        {% if site.social-twitter %}
-          <li><a href="https://weibo.com/{{ site.social-twitter }}" target="_blank"><i class="fa fa-weibo" aria-hidden="true"></i></a></li>
+        {% if site.social-weibo %}
+          <li><a href="https://weibo.com/{{ site.social-weibo }}" target="_blank"><i class="fa fa-weibo" aria-hidden="true"></i></a></li>
         {% else %}
           <li><a href="https://weibo.com/java" target="_blank"><i class="fa fa-weibo" aria-hidden="true"></i></a></li>
         {% endif %}
-        {% if site.social-facebook %}
-          <li><a href="https://facebook.com/{{ site.social-facebook }}" target="_blank"><i class="fa fa-weixin" aria-hidden="true"></i></a></li>
+        {% if site.social-weixin %}
+          <li><a href="https://weixin.com/{{ site.social-weiixn }}" target="_blank"><i class="fa fa-weixin" aria-hidden="true"></i></a></li>
         {% else %}
-          <li><a href="https://facebook.com/" target="_blank"><i class="fa fa-weixin" aria-hidden="true"></i></a></li>
+          <li><a href="https://weixin.com/" target="_blank"><i class="fa fa-weixin" aria-hidden="true"></i></a></li>
         {% endif %}
         {% if site.social-github %}
           <li class="github"><a href="http://github.com/{{site.social-github}}" target="_blank"><i class="fa fa-github"></i></a></li>
         {% else %}
           <li class="github"><a href="http://github.com/" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a></li>
-        {% endif %}
-        {% if site.social-linkedin %}
-          <li class="linkedin"><a href="https://in.linkedin.com/in/{{site.social-linkedin}}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
-        {% else %}
-          <li class="linkedin"><a href="https://in.linkedin.com/" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li>
         {% endif %}
         {% if site.social-email %}
           <li class="email"><a href="mailto:{{site.social-email}}"><i class="fa fa-envelope-o"></i></a></li>
