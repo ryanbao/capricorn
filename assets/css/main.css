@@ -41,7 +41,7 @@ section {
  * `article` contexts in Chrome, Firefox, and Safari.
  */
 h1 {
-  font-size: 2em;
+  font-size: 1.5em;
   margin: 0.67em 0;
 }
 
@@ -1149,7 +1149,7 @@ footer .copyright {
   padding-left: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  width: 80%;
+  width: 90%;
 }
 
 .post .post-content .post-date,
@@ -1159,7 +1159,7 @@ footer .copyright {
 
 .post .post-content .post-title {
   margin: 0 0 10px;
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 400;
 }
 
