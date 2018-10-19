@@ -1,14 +1,15 @@
 ---
 layout: post
-title: ubuntu16.04 docker install MySQL
+title: ubuntu16.04 docker install mysql
 date: 2018-10-19
 description: # Add post description (optional)
 img: # Add image post (optional)
 fig-caption: # Add figcaption (optional)
 tags: [MYSQL]
 ---
+
 1.安装
-{% highlight ruby %} 
+{% highlight ruby %}
 sudo docker pull docker.io/mysql
 {% endhighlight %} 
 
