@@ -1,11 +1,11 @@
 ---
 layout: post
-title: docekr-nginx-detail
+title: docekr nginx detail
 date: 2018-11-20
 description: # Add post description (optional)
 img: # Add image post (optional)
 fig-caption: # Add figcaption (optional)
-tags: [DOCKER,NGINX]
+tags: [NGINX]
 ---
 
 1.安装
