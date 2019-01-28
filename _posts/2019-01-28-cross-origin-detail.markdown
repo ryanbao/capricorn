@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Sth about cross origin & Solution
+title: Sth About Cross Origin & Solution
 date: 2019-01-28
 description: # Add post description (optional)
 img: # Add image post (optional)
@@ -21,8 +21,8 @@ URL: http[s]://domain:port/resources
 同源策略限制了一下行为：
 
 * Cookie LocalStorage 和 IndexDB无法跨域读取
-* DOM 和 JS 对象无法获取: ex  iframe 跨域的情况，不同域名的 iframe 是限制互相访问的。
-* Ajax请求发送不出去: ex. XMLHttpRequest同源策略，禁止使用 XHR 对象向不同源的服务器地址发起 HTTP 请求
+* DOM 和 JS 对象无法获取 如：iframe 跨域的情况，不同域名的 iframe 是限制互相访问的。
+* Ajax请求发送不出去 如：XMLHttpRequest同源策略，禁止使用 XHR 对象向不同源的服务器地址发起 HTTP 请求
 
 
 #### 为什么浏览器会禁止跨域 - 安全问题
@@ -34,7 +34,62 @@ URL: http[s]://domain:port/resources
 
 ##### 1.JSONP
 
-由于 script 标签不受浏览器同源策略的影响，允许跨域引用资源。因此可以通过动态创建 script 标签，然后利用 src 属性进行跨域，这也就是 JSONP 跨域的基本原理。
+由于 `script` 标签不受浏览器同源策略的影响，允许跨域引用资源。因此可以通过动态创建 script 标签，然后利用 src 属性进行跨域，这也就是 JSONP 跨域的基本原理。
+
+jsonp跨域其实也是JavaScript设计模式中的一种代理模式。在html页面中通过相应的标签从不同域名下加载静态资源文件是被浏览器允许的，所以我们可以通过这个“犯罪漏洞”来进行跨域。一般，我们可以动态的创建script标签，再去请求一个带参网址来实现跨域通信
+
+// 原生的实现方式
+
+{% highlight ruby %}
+
+let script = document.createElement('script');
+
+script.src = 'http://www.ryanbao.cn/xxx?param=value&callback=callback';
+
+document.body.appendChild(script);
+
+function callback(res) {  
+	
+	console.log(res);
+
+}
+
+{% endhighlight %}
+
+// jquery jsonp的实现方式
+
+{% highlight ruby %}
+$.ajax({
+
+    url:'http://www.ryanbao.cn/xxx',
+
+    type:'GET',
+
+    dataType:'jsonp',//请求方式为jsonp
+
+    jsonpCallback:'callback',
+
+    data:{
+
+        "param":"value"
+
+    }
+})
+
+
+{% endhighlight %}
+
+
+##### 优点
+
+* 使用简便，没有兼容性问题，目前最流行的一种跨域方法。
+
+##### 缺点
+
+* 只支持 GET 请求。
+* 由于是从其它域中加载代码执行，因此如果其他域不安全，很可能会在响应中夹带一些恶意代码。
+* 要确定 JSONP 请求是否失败并不容易。虽然 HTML5 给 script 标签新增了一个 onerror 事件处理程序，但是存在兼容性问题。
+
 
 ##### 2.CORS
 
@@ -114,6 +169,10 @@ Access-Control-Max-Age: 1728000 -- 应该将这个 Preflight 请求缓存多长�
 
 * 存在兼容性问题，特别是 IE10 以下的浏览器。
 * 第一次发送非简单请求时会多一次请求。
+
+##### 3.其他方法
+
+
 
 
 
