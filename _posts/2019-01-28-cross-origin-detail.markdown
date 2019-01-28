@@ -1,11 +1,11 @@
 ---
 layout: post
-title: sth about cross origin & solution
+title: Sth about cross origin & Solution
 date: 2019-01-28
 description: # Add post description (optional)
 img: # Add image post (optional)
 fig-caption: # Add figcaption (optional)
-tags: [FRONTEND,CROS]
+tags: [FRONTEND,CORS]
 ---
 
 #### 什么是跨域
@@ -32,14 +32,13 @@ URL: http[s]://domain:port/resources
 
 #### 跨域的解决方案
 
-#####1.JSONP
+##### 1.JSONP
 
 由于 script 标签不受浏览器同源策略的影响，允许跨域引用资源。因此可以通过动态创建 script 标签，然后利用 src 属性进行跨域，这也就是 JSONP 跨域的基本原理。
 
-#####2.CORS
-CORS（Cross-origin resource sharing，跨域资源共享）是一个 W3C 标准，定义了在必须访问跨域资源时，浏览器与服务器应该如何沟通。CORS 背后的基本思想，就是使用自定义的HTTP头部让浏览器与服务器进行沟通，从而决定请求或响应是应该成功，还是应该失败。
+##### 2.CORS
 
-CORS 需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE 浏览器不能低于 IE10。
+CORS（Cross-origin resource sharing，跨域资源共享）是一个 W3C 标准，定义了在必须访问跨域资源时，浏览器与服务器应该如何沟通。CORS 背后的基本思想，就是使用自定义的HTTP头部让浏览器与服务器进行沟通，从而决定请求或响应是应该成功，还是应该失败。CORS 需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE 浏览器不能低于 IE10。
 
 整个 CORS 通信过程，都是浏览器自动完成，不需要用户参与。对于开发者来说，CORS 通信与同源的 AJAX 通信没有差别，代码完全一样。浏览器一旦发现 AJAX 请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。
 
@@ -47,33 +46,74 @@ CORS 需要浏览器和服务器同时支持。目前，所有浏览器都支持
 
 浏览器将CORS请求分成两类：简单请求（simple request）和非简单请求（not-so-simple request）。
 
-
 同时满足以下两大条件就是简单请求
 
 1.请求方法是 GET POST HEAD 三种方法之一
 
 2.HTTP的头信息不超出以下几种字段：
-	* Accept
-	* Accept-Language
-	* Content-Language
-	* Last-Event-ID
-	* Content-Type：只限于三个值 application/x-www-form-urlencoded、multipart/form-data、text/plain
+* Accept
+* Accept-Language
+* Content-Language
+* Last-Event-ID
+* Content-Type：只限于三个值 application/x-www-form-urlencoded、multipart/form-data、text/plain
 
 凡是不同时满足上面两个条件，就属于非简单请求
 
 浏览器对这两种请求的处理，是不一样的。
 
-###### 简单请求
+##### 2.1 简单请求
 
-* 在请求中需要附加一个额外的 Origin 头部，其中包含请求页面的源信息（协议、域名和端口），以便服务器根据这个头部信息来决定是否给予响应。例如：Origin: http://www.laixiangran.cn
-* 如果服务器认为这个请求可以接受，就在 Access-Control-Allow-Origin 头部中回发相同的源信息（如果是公共资源，可以回发 * ）。例如：Access-Control-Allow-Origin：http://www.laixiangran.cn
+* 在请求中需要附加一个额外的 `Origin`头部，其中包含请求页面的源信息（协议、域名和端口），以便服务器根据这个头部信息来决定是否给予响应。例如：`Origin: http://www.ryanbao.cn`
+
+* 如果服务器认为这个请求可以接受，就在 Access-Control-Allow-Origin 头部中回发相同的源信息（如果是公共资源，可以回发 * ）。例如：`Access-Control-Allow-Origin：http://www.ryanbao.cn`
+
 * 没有这个头部或者有这个头部但源信息不匹配，浏览器就会驳回请求。正常情况下，浏览器会处理请求。注意，请求和响应都不包含 cookie 信息。
-* 如果需要包含 cookie 信息，ajax 请求需要设置 xhr 的属性 withCredentials 为 true，服务器需要设置响应头部 Access-Control-Allow-Credentials: true。
 
-###### 非简单请求
+* 如果需要包含 cookie 信息，ajax 请求需要设置 xhr 的属性 withCredentials 为 true，服务器需要设置响应头部 `Access-Control-Allow-Credentials: true`。
 
+##### 2.2 非简单请求
 
+浏览器在发送真正的请求之前，会先发送一个 Preflight 请求给服务器，这种请求使用 OPTIONS 方法，发送下列头部：
 
+* Origin：与简单的请求相同
+
+* Access-Control-Request-Method: 请求自身使用的方法
+
+* Access-Control-Request-Headers: （可选）自定义的头部信息，多个头部以逗号分隔
+
+例如：
+
+{% highlight ruby %}
+Origin: http://www.ryanbao.cn
+
+Access-Control-Request-Method: POST
+
+Access-Control-Request-Headers: NCZ
+{% endhighlight %}
+
+发送这个请求后，服务器可以决定是否允许这种类型的请求。服务器通过在响应中发送如下头部与浏览器进行沟通：
+
+{% highlight ruby %}
+Access-Control-Allow-Origin: http://www.ryanbao.cn   -- 与简单的请求相同
+
+Access-Control-Allow-Methods: GET, POST   -- 允许的方法，多个方法以逗号分隔
+
+Access-Control-Allow-Headers: NCZ  -- 允许的头部，多个方法以逗号分隔
+
+Access-Control-Max-Age: 1728000 -- 应该将这个 Preflight 请求缓存多长时间（以秒表示）
+{% endhighlight %}
+
+一旦服务器通过 Preflight 请求允许该请求之后，以后每次浏览器正常的 CORS 请求，就都跟简单请求一样了。
+
+##### 优点
+
+* CORS 通信与同源的 AJAX 通信没有差别，代码完全一样，容易维护。
+* 支持所有类型的 HTTP 请求。
+
+##### 缺点
+
+* 存在兼容性问题，特别是 IE10 以下的浏览器。
+* 第一次发送非简单请求时会多一次请求。
 
 
 
