@@ -118,13 +118,58 @@ CORS（Cross-origin resource sharing，跨域资源共享）是一个 W3C 标准
 
 ##### 2.1 简单请求
 
-* 在请求中需要附加一个额外的 `Origin`头部，其中包含请求页面的源信息（协议、域名和端口），以便服务器根据这个头部信息来决定是否给予响应。例如：`Origin: http://www.ryanbao.cn`
+在请求中需要附加一个额外的 `Origin`头部，其中包含请求页面的源信息（协议+域名+端口），以便服务器根据这个头部信息来决定是否给予响应。例如：`Origin: http://www.ryanbao.cn`
 
-* 如果服务器认为这个请求可以接受，就在 Access-Control-Allow-Origin 头部中回发相同的源信息（如果是公共资源，可以回发 * ）。例如：`Access-Control-Allow-Origin：http://www.ryanbao.cn`
+{% highlight ruby %}
+	GET /get/1 HTTP/1.1
+	Origin: http://www.ryanbao.cn
+	Host: api.ryanbao.cn
+	Accept-Language: en-US
+	Connection: keep-alive
+	User-Agent: Mozilla/5.0
+	...
 
-* 没有这个头部或者有这个头部但源信息不匹配，浏览器就会驳回请求。正常情况下，浏览器会处理请求。注意，请求和响应都不包含 cookie 信息。
+{% endhighlight %}
 
-* 如果需要包含 cookie 信息，ajax 请求需要设置 xhr 的属性 withCredentials 为 true，服务器需要设置响应头部 `Access-Control-Allow-Credentials: true`。
+Origin字段用来说明，本次请求来自哪个源。服务器根据这个值，决定是否同意这次请求。如果服务器认为这个请求可以接受，服务器返回的响应，会多出几个头信息字段：
+
+{% highlight ruby %}
+   	Access-Control-Allow-Origin: http://www.ryanbao.cn
+   	Access-Control-Allow-Credentials: true
+   	Access-Control-Expose-Headers: FooBar
+   	Content-Type: text/html; charset=utf-8
+{% endhighlight %}
+
+上面的头信息之中，有三个与CORS请求相关的字段，都以Access-Control-开头
+
+* Access-Control-Allow-Origin : 该字段是必须的。它的值要么是请求时Origin字段的值，要么是一个*，表示接受任意域名的请求
+* Access-Control-Allow-Credentials: 该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。默认情况下，Cookie不包括在CORS请求之中。设为true，即表示服务器明确许可，Cookie可以包含在请求中，一起发给服务器。这个值也只能设为true，如果服务器不要浏览器发送Cookie，删除该字段即可。
+* Access-Control-Expose-Headers:该字段可选。CORS请求时，XMLHttpRequest对象的getResponseHeader()方法只能拿到6个基本字段：Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma。如果想拿到其他字段，就必须在Access-Control-Expose-Headers里面指定。
+
+withCredentials 属性
+
+上面说到，CORS请求默认不发送Cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，指定Access-Control-Allow-Credentials字段。
+
+另一方面，开发者必须在AJAX请求中打开withCredentials属性。
+
+{% highlight ruby %}
+$.ajax({
+    ...
+   xhrFields: {
+       withCredentials: true    // 前端设置是否带cookie
+   },
+   crossDomain: true,   		// 会让请求头中包含跨域的额外信息，但不会含cookie
+    ...
+});
+{% endhighlight %}
+
+否则，即使服务器同意发送Cookie，浏览器也不会发送。或者，服务器要求设置Cookie，浏览器也不会处理。
+
+但是，如果省略withCredentials设置，有的浏览器还是会一起发送Cookie。这时，可以显式关闭withCredentials。
+需要注意的是，如果要发送Cookie，Access-Control-Allow-Origin就不能设为星号，必须指定明确的、与请求网页一致的域名。同时，Cookie依然遵循同源政策，只有用服务器域名设置的Cookie才会上传，其他域名的Cookie并不会上传，且（跨源）原网页代码中的document.cookie也无法读取服务器域名下的Cookie。
+
+
+如果Origin指定的源，不在许可范围内，服务器会返回一个正常的HTTP回应。浏览器发现，这个回应的头信息没有包含Access-Control-Allow-Origin字段，就知道出错了，从而不会解析返回结果，抛出一个错误，被XMLHttpRequest的onerror回调函数捕获。
 
 ##### 2.2 非简单请求
 
