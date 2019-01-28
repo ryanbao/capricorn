@@ -41,44 +41,27 @@ jsonp跨域其实也是JavaScript设计模式中的一种代理模式。在html�
 // 原生的实现方式
 
 {% highlight ruby %}
-
 let script = document.createElement('script');
-
 script.src = 'http://www.ryanbao.cn/xxx?param=value&callback=callback';
-
 document.body.appendChild(script);
-
-function callback(res) {  
-	
+function callback(res) {
 	console.log(res);
-
 }
-
 {% endhighlight %}
 
 // jquery jsonp的实现方式
 
 {% highlight ruby %}
 $.ajax({
-
     url:'http://www.ryanbao.cn/xxx',
-
     type:'GET',
-
     dataType:'jsonp',//请求方式为jsonp
-
     jsonpCallback:'callback',
-
     data:{
-
         "param":"value"
-
     }
 })
-
-
 {% endhighlight %}
-
 
 ##### 优点
 
@@ -121,23 +104,22 @@ CORS（Cross-origin resource sharing，跨域资源共享）是一个 W3C 标准
 在请求中需要附加一个额外的 `Origin`头部，其中包含请求页面的源信息（协议+域名+端口），以便服务器根据这个头部信息来决定是否给予响应。例如：`Origin: http://www.ryanbao.cn`
 
 {% highlight ruby %}
-	GET /get/1 HTTP/1.1
-	Origin: http://www.ryanbao.cn
-	Host: api.ryanbao.cn
-	Accept-Language: en-US
-	Connection: keep-alive
-	User-Agent: Mozilla/5.0
-	...
-
+GET /get/1 HTTP/1.1
+Origin: http://www.ryanbao.cn
+Host: api.ryanbao.cn
+Accept-Language: en-US
+Connection: keep-alive
+User-Agent: Mozilla/5.0
+...
 {% endhighlight %}
 
 Origin字段用来说明，本次请求来自哪个源。服务器根据这个值，决定是否同意这次请求。如果服务器认为这个请求可以接受，服务器返回的响应，会多出几个头信息字段：
 
 {% highlight ruby %}
-   	Access-Control-Allow-Origin: http://www.ryanbao.cn
-   	Access-Control-Allow-Credentials: true
-   	Access-Control-Expose-Headers: FooBar
-   	Content-Type: text/html; charset=utf-8
+Access-Control-Allow-Origin: http://www.ryanbao.cn
+Access-Control-Allow-Credentials: true
+Access-Control-Expose-Headers: FooBar
+Content-Type: text/html; charset=utf-8
 {% endhighlight %}
 
 上面的头信息之中，有三个与CORS请求相关的字段，都以Access-Control- 开头
@@ -154,12 +136,12 @@ withCredentials 属性
 
 {% highlight ruby %}
 $.ajax({
-    ...
-   xhrFields: {
-       withCredentials: true    // 前端设置是否带cookie
-   },
-   crossDomain: true,   		// 会让请求头中包含跨域的额外信息，但不会含cookie
-    ...
+	...
+	xhrFields: {
+		withCredentials: true    // 前端设置是否带cookie
+	},
+	crossDomain: true,   		// 会让请求头中包含跨域的额外信息，但不会含cookie
+	...
 });
 {% endhighlight %}
 
@@ -173,37 +155,93 @@ $.ajax({
 
 ##### 2.2 非简单请求
 
-浏览器在发送真正的请求之前，会先发送一个 Preflight 请求给服务器，这种请求使用 OPTIONS 方法，发送下列头部：
+非简单请求是那种对服务器有特殊要求的请求，比如请求方法是PUT或DELETE，或者Content-Type字段的类型是application/json。
+
+非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。浏览器先询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些HTTP动词和头信息字段。只有得到肯定答复，浏览器才会发出正式的XMLHttpRequest请求，否则就报错。
+
+{% highlight ruby %}
+var url = 'http://api.ryanbao.com/xxx';
+var xhr = new XMLHttpRequest();
+xhr.open('PUT', url, true);
+xhr.setRequestHeader('X-Custom-Header', 'value');
+xhr.send();
+{% endhighlight %}
+
+浏览器发现，这是一个非简单请求，就自动发出一个"预检"请求，要求服务器确认可以这样请求。下面是这个"预检"请求的HTTP头信息。
+
+{% highlight ruby %}
+OPTIONS /xxx HTTP/1.1
+Origin: http://www.ryanbao.cn
+Access-Control-Request-Method: PUT
+Access-Control-Request-Headers: X-Custom-Header
+Host: api.ryanbao.com
+Accept-Language: en-US
+Connection: keep-alive
+User-Agent: Mozilla/5.0
+...
+{% endhighlight %}
+
+"预检"请求用的请求方法是OPTIONS，表示这个请求是用来询问的。头信息里面，关键字段是Origin，表示请求来自哪个源。除了Origin字段，"预检"请求的头信息包括两个特殊字段。如下：
 
 * Origin：与简单的请求相同
+* Access-Control-Request-Method: 该字段是必须的，用来列出浏览器的CORS请求会用到哪些HTTP方法，上例是PUT。
+* Access-Control-Request-Headers: （可选）该字段是一个逗号分隔的字符串，指定浏览器CORS请求会额外发送的头信息字段，上例是X-Custom-Header
 
-* Access-Control-Request-Method: 请求自身使用的方法
-
-* Access-Control-Request-Headers: （可选）自定义的头部信息，多个头部以逗号分隔
-
-例如：
+服务器收到"预检"请求以后，检查了Origin、Access-Control-Request-Method和Access-Control-Request-Headers字段以后，确认允许跨源请求，就可以做出回应
 
 {% highlight ruby %}
+HTTP/1.1 200 OK
+Date: Mon, 01 Dec 2018 01:15:39 GMT
+Server: Apache/2.0.61 (Unix)
+Access-Control-Allow-Origin: http://www.ryanbao.com
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: X-Custom-Header
+Content-Type: text/html; charset=utf-8
+Content-Encoding: gzip
+Content-Length: 0
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+Content-Type: text/plain
+{% endhighlight %}
+
+上面的HTTP回应中，关键的是Access-Control-Allow-Origin字段，表示http://www.ryanbao.cn
+
+如果浏览器否定了"预检"请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被XMLHttpRequest对象的onerror回调函数捕获。控制台会打印出如下的报错信息。
+
+服务器回应的其他CORS相关字段如下：
+
+{% highlight ruby %}
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: X-Custom-Header
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 1728000
+{% endhighlight %}
+
+* Access-Control-Allow-Methods：该字段必需，它的值是逗号分隔的一个字符串，表明服务器支持的所有跨域请求的方法。注意，返回的是所有支持的方法，而不单是浏览器请求的那个方法。这是为了避免多次"预检"请求。
+* Access-Control-Allow-Headers：如果浏览器请求包括Access-Control-Request-Headers字段，则Access-Control-Allow-Headers字段是必需的。它也是一个逗号分隔的字符串，表明服务器支持的所有头信息字段，不限于浏览器在"预检"中请求的字段。
+* Access-Control-Allow-Credentials： 该字段与简单请求时的含义相同。
+* Access-Control-Max-Age： 该字段可选，用来指定本次预检请求的有效期，单位为秒。上面结果中，有效期是20天（1728000秒），即允许缓存该条回应1728000秒（即20天），在此期间，不用发出另一条预检请求
+
+一旦服务器通过了"预检"请求，以后每次浏览器正常的CORS请求，就都跟简单请求一样，会有一个Origin头信息字段。服务器的回应，也都会有一个Access-Control-Allow-Origin头信息字段。
+
+{% highlight ruby %}
+PUT /xxx HTTP/1.1
 Origin: http://www.ryanbao.cn
-
-Access-Control-Request-Method: POST
-
-Access-Control-Request-Headers: NCZ
+Host: api.ryanbao.cn
+X-Custom-Header: value
+Accept-Language: en-US
+Connection: keep-alive
+User-Agent: Mozilla/5.0...
 {% endhighlight %}
 
-发送这个请求后，服务器可以决定是否允许这种类型的请求。服务器通过在响应中发送如下头部与浏览器进行沟通：
+浏览器的正常CORS请求。上面头信息的Origin字段是浏览器自动添加的。下面是服务器正常的回应。
 
 {% highlight ruby %}
-Access-Control-Allow-Origin: http://www.ryanbao.cn   -- 与简单的请求相同
-
-Access-Control-Allow-Methods: GET, POST   -- 允许的方法，多个方法以逗号分隔
-
-Access-Control-Allow-Headers: NCZ  -- 允许的头部，多个方法以逗号分隔
-
-Access-Control-Max-Age: 1728000 -- 应该将这个 Preflight 请求缓存多长时间（以秒表示）
+Access-Control-Allow-Origin: http://api.bob.com
+Content-Type: text/html; charset=utf-8
 {% endhighlight %}
 
-一旦服务器通过 Preflight 请求允许该请求之后，以后每次浏览器正常的 CORS 请求，就都跟简单请求一样了。
+Access-Control-Allow-Origin字段是每次回应都必定包含的
 
 ##### 优点
 
