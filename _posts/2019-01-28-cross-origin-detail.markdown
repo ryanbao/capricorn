@@ -237,7 +237,7 @@ User-Agent: Mozilla/5.0...
 浏览器的正常CORS请求。上面头信息的Origin字段是浏览器自动添加的。下面是服务器正常的回应。
 
 {% highlight ruby %}
-Access-Control-Allow-Origin: http://api.bob.com
+Access-Control-Allow-Origin: http://api.ryanbao.cn
 Content-Type: text/html; charset=utf-8
 {% endhighlight %}
 
