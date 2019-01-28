@@ -24,4 +24,4 @@ URL: http[s]://domain:port/resources
 
 * Cookie LocalStorage 和 IndexDB无法跨域读取
 * DOM 和 JS 对象无法获取
-* Ajax请求发送不出去
+* Ajax请求发送不出去: ex. XMLHttpRequest同源策略，禁止使用 XHR 对象向不同源的服务器地址发起 HTTP 请求
