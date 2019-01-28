@@ -8,7 +8,4 @@ fig-caption: # Add figcaption (optional)
 tags: [CDN]
 ---
 
-1.安装
-{% highlight ruby %}
-sudo docker pull nginx
-{% endhighlight %} 
+~~~编写中~~~~ 
