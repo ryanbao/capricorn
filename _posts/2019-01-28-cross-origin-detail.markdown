@@ -140,7 +140,7 @@ Origin字段用来说明，本次请求来自哪个源。服务器根据这个�
    	Content-Type: text/html; charset=utf-8
 {% endhighlight %}
 
-上面的头信息之中，有三个与CORS请求相关的字段，都以Access-Control-开头
+上面的头信息之中，有三个与CORS请求相关的字段，都以Access-Control- 开头
 
 * Access-Control-Allow-Origin : 该字段是必须的。它的值要么是请求时Origin字段的值，要么是一个*，表示接受任意域名的请求
 * Access-Control-Allow-Credentials: 该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。默认情况下，Cookie不包括在CORS请求之中。设为true，即表示服务器明确许可，Cookie可以包含在请求中，一起发给服务器。这个值也只能设为true，如果服务器不要浏览器发送Cookie，删除该字段即可。
