@@ -8,7 +8,7 @@ fig-caption: # Add figcaption (optional)
 tags: [FRONTEND,CROS]
 ---
 
-#####什么是跨域
+##### 什么是跨域
 
 跨域是指浏览器不能执行其他网站的脚本。是由浏览器的同源策略造成的，是浏览器对JavaScript实施的安全限制。
 
@@ -17,8 +17,8 @@ tags: [FRONTEND,CROS]
 所谓的同源是指：协议、域名和端口相同。
 
 {% highlight ruby %}
-URL: http[s]://domain:port/resources
-{% highlight%}
+	URL: http[s]://domain:port/resources
+{% endhighlight %}
 
 同源策略限制了一下行为：
 
