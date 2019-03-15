@@ -1,0 +1,42 @@
+---
+layout: post
+title: URL传值带加号“+”的问题的解决方法
+date: 2019-03-15
+description: # Add post description (optional)
+img: # Add image post (optional)
+fig-caption: # Add figcaption (optional)
+tags: [REQUEST]
+---
+今天在调试客户端向服务器传递参数时，参数中的“+”全部变成了空格，原因是URL中默认的将“+”号转义了。
+
+解决方法如下：
+
+方法一、修改客户端，将客户端带“+”的参数中的“+”全部替换为‍“2B%”，这样参数传到服务器端时就能得到“+”了。
+
+方法二、修改服务器端，将空格替换为“+”，这种方式只适用于参数中有‍“+”没有空格的情况。
+
+例子：
+
+String a = reuqest.‍getParameter("clientStr")‍.replace(' ','+');
+
+如果客户端为clientStr=test+OK，那么a的值为test+OK;
+
+方法三、修改服务器端，将获取参数的方法由‍reuqest.‍getParameter改为‍request.getQueryString().substring(0)，然后对得到的字符串进行解析。
+
+例子：
+
+‍‍String a =request.getQueryString().substring(0);
+
+‍如果客户端为clientStr=test+OK，那么a的值为‍clientStr=test+OK，需要再解析一下，
+
+a=a.‍substring(10);得到a的值为‍test+OK。
+
+附：一个JS，用来转义URL中特殊字符的。
+
+‍
+{% highlight ruby %}
+	function URLencode(sStr) 
+	{
+	    return escape(sStr).replace(/\+/g, '%2B').replace(/\"/g,'%22').replace(/\'/g, '%27').replace(/\//g,'%2F');
+	}
+{% endhighlight %} 

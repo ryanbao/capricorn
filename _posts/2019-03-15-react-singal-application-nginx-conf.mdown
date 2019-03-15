@@ -1,6 +1,6 @@
 ---
 layout: post
-title: react singal application nginx conf
+title: React singal application nginx conf
 date: 2019-03-15
 description: # Add post description (optional)
 img: # Add image post (optional)
