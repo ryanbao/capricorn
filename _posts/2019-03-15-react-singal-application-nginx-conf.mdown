@@ -1,14 +1,43 @@
 ---
 layout: post
 title: react singal application nginx conf
-date: 2018-11-20
+date: 2019-03-15
 description: # Add post description (optional)
 img: # Add image post (optional)
 fig-caption: # Add figcaption (optional)
 tags: [NGINX,REACT]
 ---
 
-1.安装
+在使用类似React Vue Angular 等前端框架构建单页应用时, 所有路由都指向index.html页面；这导致在Nginx默认配置时只能访问到单页应用中的首页；内部连接可以跳转 但是刷新之后就会404。Nginx在解析域名URL的时候，比如 test.aaa.com/aa , Nginx就会解析到root目录下去找aa这个文件，因为没有这个文件所以就会报404错误；但是在类似React Vue单页应用中 test.aaaa.com/aa 是内部定制的路由规则。遇到这种情况该怎么配置呢？看下面这个例子：
+
+#### nginx server config
 {% highlight ruby %}
-sudo docker pull nginx
+	server {
+	  server_name test.xxxx.com;
+	  listen 8080; 
+	  index index.html; 
+	  root /var/www; 
+
+	  location ~* ^/app/static/(.*) { 
+	      alias /var/www/static/\$1; 
+	  }
+
+	  location /app { 
+	      rewrite .*  /index.html break;
+	  }
+
+	  location ~ .*\.(gif|jpg|jpeg|png|PNG|bmp|swf|asp|cfm|xml|py|pl|lasso|cfc|afp|txt|zip|log|ico|csv|json|xls|pdf|mp3|mp4|apk)$ \
+	  { 
+	    expires      1y; \
+	    access_log off; \
+	  } 
+
+	  location ~ .*\.(js|css|html)?$ 
+	  { 
+	    expires      1y; 
+	    access_log off; 
+	  } 
+	}
 {% endhighlight %} 
+
+通过rewrite .* /index.html break; 把应用的router path 重定向到index.html ；break使得URL匹配结束，最终服务返回的文档就是 /var/www/index.html. 那个break决定了浏览器里的url是不变的，而http响应的文档其实就是index.html，而浏览器上的path，会自动的被vue-router处理，进行无刷新的跳转，我们看到的结果就是path对应了那个页面！
